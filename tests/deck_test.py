@@ -1,4 +1,5 @@
 from setback import Deck
+import pytest
 
 def test_create_deck():
     deck = Deck()
@@ -25,7 +26,7 @@ def test_draw_no_args_returns_one_card():
 
     assert len(hand) == 1 and hand[0] != ""
 
-def test_draw_3_returns_one_card():
+def test_draw_three_returns_three_cards():
     deck = Deck()
     deck.Shuffle()
 
