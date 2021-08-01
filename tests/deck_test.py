@@ -13,23 +13,23 @@ def test_shuffle_two_decks_not_equal():
     deck1 = Deck()
     deck2 = Deck()
 
-    deck1.Shuffle()
-    deck2.Shuffle()
+    deck1.shuffle()
+    deck2.shuffle()
 
     assert not deck1.Cards == deck2.Cards
 
 def test_draw_no_args_returns_one_card():
     deck = Deck()
-    deck.Shuffle()
+    deck.shuffle()
 
-    hand = deck.DrawCard()
+    hand = deck.draw_cards()
 
     assert len(hand) == 1 and hand[0] != ""
 
 def test_draw_three_returns_three_cards():
     deck = Deck()
-    deck.Shuffle()
+    deck.shuffle()
 
-    hand = deck.DrawCard(3)
+    hand = deck.draw_cards(3)
 
     assert len(hand) == 3

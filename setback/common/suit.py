@@ -1,9 +1,11 @@
-from setback.common.extended_enum import ExtendedEnum
+from enum import Enum
 
-suits = "HSCD"
-class Suit(ExtendedEnum):
+class Suit(Enum):
     H = "Hearts"
     S = "Spades"
     C = "Clubs"
     D = "Diamonds"
+
+suits = [Suit.H,Suit.S,Suit.C,Suit.D]
+
     
