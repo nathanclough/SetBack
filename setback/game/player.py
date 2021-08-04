@@ -11,3 +11,4 @@ class Player():
             raise Exception("Player can only have 6 cards")
         self.cards.extend(cards)
     
+    

@@ -24,7 +24,7 @@ class Dealer():
                 self.__clear_cards()
                 self.deal()
         
-        self.dealer_index += ListHelper.get_next_index(self.dealer_index)
+        self.dealer_index = ListHelper.get_next_index(self.dealer_index)
     
     def check_for_redeal(self,hand:list[Card]):
         max_rank = 0
@@ -40,6 +40,7 @@ class Dealer():
         # and don't have a 2 then redeal
         return max_rank < 10 and not has_duce
     
+    # deals cards so that the player has 6 total 
     def deal_cards(self,player:Player):
         count = 6 - len(player.cards)
         player.give_cards(self.deck.draw_cards(count))
