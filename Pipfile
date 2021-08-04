@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 setback = {editable = true, path = "."}
+kivy = "*"
 
 [dev-packages]
 
