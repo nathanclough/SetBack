@@ -2,7 +2,7 @@ from attr import Factory
 from twisted.internet.protocol import ServerFactory
 from twisted.test import proto_helpers
 from server.server import SetbackServerApp, SetbackServerFactory
-from setback import CreateGameResult, GetGamesResult
+from setback import CreateGameResult, GetGamesResult, Game, Player
 import json
 import pytest
 
@@ -32,6 +32,7 @@ class TestServer:
         # Arrange 
         # Create the request as dict 
         request = {
+            "request_id": 1,
             "method": "create_game",
             "args": {
                 "name" : "Game1",
@@ -54,36 +55,75 @@ class TestServer:
         result = server.get_result()
         
         # Convert it to result object from json 
-        create_game_result = CreateGameResult.from_json(json.loads(result))
+        create_game_result = CreateGameResult.from_json(json.loads(result)["response"])
         
         # Verify that the result is correct
         assert create_game_result.id != None and create_game_result.name == "Game1"
 
     def test_get_games(self,server:FakeServer):   
         request = {
+            "request_id": 1,
             "method": "get_games"
         }
         request = json.dumps(request)
 
         server.send_request(request)
         result = server.get_result()
-        get_games_result = GetGamesResult.from_json(json.loads(result))
+        get_games_result = GetGamesResult.from_json(json.loads(result)["response"])
         assert len(get_games_result.games) == 1 
 
-    def test_leave_game(self,server:FakeServer):
-        game_id = server.app.games[0].id
-        
-        request = {"method": "leave_game",
-            "args" : { "game_id": game_id, "player_id" : 123}}
+    def test_leave_game_team_one(self,server:FakeServer):
+        player = Player("Nathan",1,123)
+        team = [player]
+        game = Game(team_one=team)
+        server.app.games = { game.id: game}
+
+        request = { "request_id": 1,
+            "method": "leave_game",
+            "args" : { "game_id": game.id, "player_id" : player.id}}
 
         server.send_request(json.dumps(request))
 
         result = server.get_result()
         
-        assert len(server.app.games[0].team_one) == 0 
+        assert len(server.app.games[game.id].team_one) == 0
+
+    def test_leave_game_team_two(self,server:FakeServer):
+        player = Player("Nathan",2,123)
+        team = [player]
+        game = Game(team_one=team)
+        server.app.games = { game.id: game}
+
+        request ={ "request_id": 1,
+            "method": "leave_game",
+            "args" : { "game_id": game.id, "player_id" : player.id}}
+
+        server.send_request(json.dumps(request))
+
+        result = server.get_result()
+        
+        assert len(server.app.games[game.id].team_one) == 0 
     
+    def test_join_game(self,server):
+        game = Game()
+        server.app.games = {game.id: game}
+        player = Player("Nathan",2,123)
+        request = { "request_id": 1, 
+            "method" : "join_game",
+            "args" : { 
+                "player" : player, 
+                "game_id" : game.id,
+                "team": 2
+                }
+            }
+        
+        server.send_request(json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4))
+
+        assert len(server.app.games[game.id].team_two) == 1
+
     def test_unknown_method(self,server:FakeServer):
         request = {
+            "request_id": 1,
             "method": "foo",
             }
 

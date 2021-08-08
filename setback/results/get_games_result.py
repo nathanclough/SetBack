@@ -6,5 +6,8 @@ class GetGamesResult():
 
     @classmethod
     def from_json(cls,data):
-        games = list(map(Game.from_json, data["games"]))
+        games = {}
+        for game in data["games"]:
+            game = Game.from_json(data["games"][game])
+            games[game.id] = game
         return cls(games)
