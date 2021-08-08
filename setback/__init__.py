@@ -7,3 +7,4 @@ from setback.game.dealer import Dealer
 from setback.game.evaluator import Evaluator
 from setback.game.game_instance import Game
 from setback.results.create_game_result import CreateGameResult
+from setback.results.get_games_result import GetGamesResult
