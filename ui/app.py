@@ -14,8 +14,7 @@ class SetbackClientApp(App):
     connection = None
     textbox = None
     label = None
-    games = []
-    
+
     # Handlers for each response where key is request id 
     response_handlers = {}
 
@@ -31,9 +30,10 @@ class SetbackClientApp(App):
     def on_connection(self, connection):
         self.print_message("Connected successfully!")
         self.connection = connection
+        self.homepage.set_connection(connection)
 
     def print_message(self, msg):
-        self.homepage.label.text = msg
+        self.homepage.connection_status_label.text = msg
    
 if __name__ == '__main__':
     SetbackClientApp().run()

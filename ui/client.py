@@ -9,7 +9,7 @@ install_twisted_reactor()
 # A Simple Client that send messages to the Echo Server
 from twisted.internet import protocol
 import json
-
+from time import sleep
 
 class SetbackClient(protocol.Protocol):
     def connectionMade(self):
@@ -34,6 +34,19 @@ class SetbackClientFactory(protocol.ClientFactory):
 
     def clientConnectionLost(self, connector, reason):
         self.app.print_message('Lost connection.')
+        self.reconnect()
+         
 
     def clientConnectionFailed(self, connector, reason):
         self.app.print_message('Connection failed.')
+        self.reconnect()
+
+    def reconnect(self):
+        connected = False
+        while not connected :
+            try:
+                self.app.print_message('Reconnecting ...')
+                self.app.connect_to_server()
+                connected = True
+            except:
+                sleep(2)
