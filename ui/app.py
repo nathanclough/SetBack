@@ -1,9 +1,12 @@
+from ui.select_team import SelectTeam
 from kivy.app import App
 from kivy.uix.button import Button
+from kivy.uix.screenmanager import ScreenManager
 from client import SetbackClientFactory
 from twisted.internet import reactor
 from homepage import HomePage
 from setback import GetGamesResult
+from select_team import SelectTeam
 import json
 import uuid
 
@@ -19,10 +22,12 @@ class SetbackClientApp(App):
     response_handlers = {}
 
     def build(self):
+        screenManager = ScreenManager()
         self.homepage = HomePage(self.response_handlers)
-        root = self.homepage.render_homepage()
+        screenManager.add_widget(self.homepage.render())
+        screenManager.add_widget(SelectTeam(name='select_team'))
         self.connect_to_server()
-        return root
+        return screenManager
         
     def connect_to_server(self):
         reactor.connectTCP('localhost', 8000, SetbackClientFactory(self))

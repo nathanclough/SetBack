@@ -1,3 +1,4 @@
+from logging import root
 from setback.results.create_game_result import CreateGameResult
 from typing import OrderedDict
 from kivy.core import text
@@ -10,10 +11,11 @@ from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
 from setback import GetGamesResult
 from kivy.clock import Clock
+from kivy.uix.screenmanager import Screen
 import uuid
 import json
 
-class HomePage():
+class HomePage(Screen):
     def __init__(self, response_handlers) -> None:
         self.response_handlers = response_handlers
         self.games = {}
@@ -23,9 +25,10 @@ class HomePage():
     def set_connection(self,connection):
         self.connection = connection
 
-    def render_homepage(self):
+    def render(self):
         # get a scrollable view 
-        self.root = ScrollView(size_hint=(1, None), size=(Window.width, Window.height))        
+        self.screen = Screen(name='homepage')
+        self.scroll = ScrollView(size_hint=(1, None), size=(Window.width, Window.height))        
         
         # Set the connection status to the default connecting 
         self.connection_status_label = Label(text='connecting...\n',size_hint_y=None,height=20)
@@ -37,9 +40,10 @@ class HomePage():
         self.menu_layout.add_widget(self.get_create_game())
 
         self.menu_layout.bind(minimum_height=self.menu_layout.setter('height'))
-        self.root.add_widget(self.menu_layout)
+        self.scroll.add_widget(self.menu_layout)
         Clock.schedule_interval(self.get_games, 2.5)
-        return self.root
+        self.screen.add_widget(self.scroll)
+        return self.screen
 
     def get_create_game(self):
         self.create_game_button = Button(size_hint_y=None,height=30,text="Create Game")
@@ -76,7 +80,7 @@ class HomePage():
             if(not id in self.games):
                 game = result.games[id]
                 self.games[id] = game
-                btn = self.get_join_game_button(id,game.name)
+                btn = self.get_join_game_button(id,game)
                 self.menu_layout.add_widget(btn)
         
         for id in self.games:
@@ -109,11 +113,16 @@ class HomePage():
     def handle_create_game(self,args):
         result = CreateGameResult.from_json(args)
     
-    def get_join_game_button(self,id,name):
-        btn =  Button(text=f"Join: {name}", size_hint_y=None, height=50)
-        # bind button to join game function 
+    def get_join_game_button(self,id,game):
+        btn =  Button(text=f"Join: {game.name}", size_hint_y=None, height=50)
+        btn.bind(on_release=self.switch_to_select_team) 
         self.game_buttons[id] = btn
         return btn
+    
+    def switch_to_select_team(self,args):
+        for id in self.game_buttons:
+            if args == self.game_buttons[id]:
+                self.screen.manager.current = 'select_team'
 
 
 
