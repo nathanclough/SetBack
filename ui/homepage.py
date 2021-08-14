@@ -1,5 +1,6 @@
 from logging import root
 from setback.results.create_game_result import CreateGameResult
+from setback import Game
 from typing import OrderedDict
 from kivy.core import text
 from kivy.uix.label import Label
@@ -15,7 +16,7 @@ from kivy.uix.screenmanager import Screen
 import uuid
 import json
 
-class HomePage(Screen):
+class HomePage():
     def __init__(self, response_handlers) -> None:
         self.response_handlers = response_handlers
         self.games = {}
@@ -61,7 +62,7 @@ class HomePage(Screen):
     def get_games(self, dt):
         if self.connection == None:
             return 
-        id = str(uuid.uuid4)
+        id = str(uuid.uuid4())
         request = {
             "request_id" : id,
             "method": "get_games"
@@ -91,27 +92,27 @@ class HomePage(Screen):
 
 
     def create_game(self, name):
-        id = str(uuid.uuid4)
+        id = str(uuid.uuid4())
 
         request = {
             "request_id": id,
             "method": "create_game",
             "args": {
                 "name" : self.textbox.text,
-                "player": {
-                    "name" : "Nathan",
-                    "id" : 123,
-                    "team": 1
-                }
+                "player": self.screen.manager.player
             }
         }
         self.response_handlers[id] = self.handle_create_game
 
-        request = json.dumps(request)
+        request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
         self.connection.write(request.encode('utf-8'))
 
     def handle_create_game(self,args):
         result = CreateGameResult.from_json(args)
+        game = Game([self.screen.manager.player],[],result.name,result.id)
+        self.screen.manager.game = game
+        self.screen.manager.current = 'select_team'
+
     
     def get_join_game_button(self,id,game):
         btn =  Button(text=f"Join: {game.name}", size_hint_y=None, height=50)
@@ -122,7 +123,35 @@ class HomePage(Screen):
     def switch_to_select_team(self,args):
         for id in self.game_buttons:
             if args == self.game_buttons[id]:
-                self.screen.manager.current = 'select_team'
+                self.join_game(id)
+
+    def join_game(self,game_id):
+        request_id = str(uuid.uuid4())
+        request = { "request_id": request_id, 
+            "method" : "join_game",
+            "args" : { 
+                "player" : self.screen.manager.player, 
+                "game_id" : game_id,
+                "team": 1
+                }
+            }
+        request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+        self.response_handlers[request_id] = self.handle_join_game
+        self.connection.write(request.encode('utf-8'))
+    
+    def handle_join_game(self,args):
+        result = Game.from_json(args)
+        for p in result.team_one:
+            if p.id == self.screen.manager.player.id:
+                self.screen.manager.player.team = 1
+        for p in result.team_two:
+            if p.id == self.screen.manager.player.id:
+                self.screen.manager.player.team = 2
+        
+        self.screen.manager.game = result
+        self.screen.manager.current = 'select_team'
+
 
 
 

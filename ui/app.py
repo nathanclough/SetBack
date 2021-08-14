@@ -7,6 +7,7 @@ from twisted.internet import reactor
 from homepage import HomePage
 from setback import GetGamesResult
 from select_team import SelectTeam
+from state_manager import StateManager
 import json
 import uuid
 
@@ -22,10 +23,11 @@ class SetbackClientApp(App):
     response_handlers = {}
 
     def build(self):
-        screenManager = ScreenManager()
+        screenManager = StateManager()
         self.homepage = HomePage(self.response_handlers)
+        self.select_team = SelectTeam(self.response_handlers)
         screenManager.add_widget(self.homepage.render())
-        screenManager.add_widget(SelectTeam(name='select_team'))
+        screenManager.add_widget(self.select_team.render())
         self.connect_to_server()
         return screenManager
         
@@ -36,6 +38,7 @@ class SetbackClientApp(App):
         self.print_message("Connected successfully!")
         self.connection = connection
         self.homepage.set_connection(connection)
+        self.select_team.set_connection(connection)
 
     def print_message(self, msg):
         self.homepage.connection_status_label.text = msg
