@@ -1,3 +1,4 @@
+from logging import logMultiprocessing
 import uuid
 from setback.game.player import Player
 class Game:
@@ -10,6 +11,9 @@ class Game:
         self.team_two = team_two 
         self.name = name
     
+    def is_full(self):
+        return len(self.team_one) == 2 and len(self.team_two) == 2
+
     @classmethod
     def from_json(cls,data):
         team_one = list(map(Player.from_json, data["team_one"]))

@@ -62,7 +62,8 @@ class SetbackServerApp(App):
         return result
     
     def get_games(self):
-        result = GetGamesResult(self.games)
+        not_full_games = {k:v for (k,v) in self.games.items() if not v.is_full()}
+        result = GetGamesResult(not_full_games)
         return result
     
     def leave_game(self,args):
@@ -84,9 +85,9 @@ class SetbackServerApp(App):
     def join_game(self,args):
         game = self.games[args["game_id"]]
 
-        if (args["team"] == 1):
+        if (len(game.team_one) < 2):
             game.team_one.append(Player.from_json(args["player"]))
-        else:
+        elif(len(game.team_two) < 2):
             game.team_two.append(Player.from_json(args["player"]))
         
         return game

@@ -113,13 +113,54 @@ class TestServer:
             "args" : { 
                 "player" : player, 
                 "game_id" : game.id,
+                "team": 1
+                }
+            }
+        
+        server.send_request(json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4))
+
+        assert len(server.app.games[game.id].team_one) == 2
+    
+    def test_get_game_with_full_teams_not_in_result(self,server:FakeServer):
+        game = Game()
+        team_one = [Player("p1",1),Player("p2",1)]
+        team_two = [Player("p3",2),Player("p4",2)]
+        game.team_two = team_two
+        game.team_one = team_one
+
+        server.app.games = {game.id: game}
+        request = {
+            "request_id": 1,
+            "method": "get_games"
+        }
+        request = json.dumps(request)
+
+        server.send_request(request)
+        result = server.get_result()
+        get_games_result = GetGamesResult.from_json(json.loads(result)["response"])
+        assert len(get_games_result.games) == 0
+
+    def test_join_game_team_is_full_joins_other_team(self, server:FakeServer):
+        game = Game()
+        team_two = [Player("p3",2),Player("p4",2)]
+        game.team_two = team_two
+        game.team_one = []
+
+        server.app.games = {game.id: game}
+        player = Player("Nathan",2,123)
+        request = { "request_id": 1, 
+            "method" : "join_game",
+            "args" : { 
+                "player" : player, 
+                "game_id" : game.id,
                 "team": 2
                 }
             }
         
         server.send_request(json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4))
 
-        assert len(server.app.games[game.id].team_two) == 1
+        assert len(server.app.games[game.id].team_one) == 1
+
 
     def test_unknown_method(self,server:FakeServer):
         request = {
