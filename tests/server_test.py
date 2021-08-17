@@ -107,6 +107,8 @@ class TestServer:
     def test_join_game(self,server):
         game = Game()
         server.app.games = {game.id: game}
+        server.app.lobies[game.id] = []
+
         player = Player("Nathan",2,123)
         request = { "request_id": 1, 
             "method" : "join_game",
@@ -147,6 +149,8 @@ class TestServer:
         game.team_one = []
 
         server.app.games = {game.id: game}
+        server.app.lobies[game.id] = []
+
         player = Player("Nathan",2,123)
         request = { "request_id": 1, 
             "method" : "join_game",
