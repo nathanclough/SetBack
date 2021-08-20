@@ -14,7 +14,7 @@ import uuid
 # A simple kivy App, with a textbox to enter messages, and
 # a large label to display all the messages received from
 # the server
-class SetbackClientApp(App):
+class SetbackApp(App):
     connection = None
     textbox = None
     label = None
@@ -23,13 +23,14 @@ class SetbackClientApp(App):
     response_handlers = {}
 
     def build(self):
-        screenManager = StateManager()
+        self.stateManager = StateManager()
+        self.stateManager.response_handlers = self.response_handlers
         self.homepage = HomePage(self.response_handlers)
-        self.select_team = SelectTeam(self.response_handlers)
-        screenManager.add_widget(self.homepage.render())
-        screenManager.add_widget(self.select_team.render())
+        self.select_team = SelectTeam(name ="select_team")
+        self.stateManager.add_widget(self.homepage.render())
+        self.stateManager.add_widget(self.select_team)
         self.connect_to_server()
-        return screenManager
+        return self.stateManager
         
     def connect_to_server(self):
         reactor.connectTCP('localhost', 8000, SetbackClientFactory(self))
@@ -38,10 +39,10 @@ class SetbackClientApp(App):
         self.print_message("Connected successfully!")
         self.connection = connection
         self.homepage.set_connection(connection)
-        self.select_team.set_connection(connection)
+        self.stateManager.set_connection(connection)
 
     def print_message(self, msg):
         self.homepage.connection_status_label.text = msg
    
 if __name__ == '__main__':
-    SetbackClientApp().run()
+    SetbackApp().run()

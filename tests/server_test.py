@@ -149,7 +149,7 @@ class TestServer:
         game.team_one = []
 
         server.app.games = {game.id: game}
-        server.app.lobies[game.id] = []
+        server.app.lobbies[game.id] = []
 
         player = Player("Nathan",2,123)
         request = { "request_id": 1, 

@@ -1,0 +1,23 @@
+#:kivy 2.0
+
+<SelectTeam>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: root.game_name
+        
+        BoxLayout:
+            orientation: 'horizontal'
+
+            Label: 
+                text: root.team_one
+            Label: 
+                text: root.team_two        
+        Button:
+            text: 'Leave Game'
+            on_release: root.leave()
+        Button:
+            text: 'Start Game'
+            on_press: root.update_state()
+
+    

@@ -55,7 +55,7 @@ class SetbackServerFactory(protocol.Factory):
         print(f"registered {client}: id {client.id}")
 
     def unregister(self,client):
-        self.clients.remove(client)
+        self.clients.pop(client.id)
 
     def sendCommand(self, client_list,cmd):
         for id in client_list:
@@ -71,7 +71,7 @@ class SetbackServerApp(App):
     label = None
     games = {}
     # key is game id, value is list of client id's 
-    lobies = {}
+    lobbies = {}
 
     def build(self):
         self.label = Label(text="server started\n")
@@ -84,7 +84,7 @@ class SetbackServerApp(App):
         game.team_one.append(Player.from_json(args["player"]))
 
         self.games[game.id] = game
-        self.lobies[game.id] = [ args["client_id"] ]
+        self.lobbies[game.id] = [ args["client_id"] ]
 
         result = CreateGameResult(game.name,game.id)
         return result
@@ -99,29 +99,21 @@ class SetbackServerApp(App):
         player_id = args["player_id"]
         
         game = self.games[game_id]
-        
-        for player in game.team_one:
-            if(player.id == player_id):
-                game.team_one.remove(player)
-                return f"removed {player.name} from Game: {game.id}"
-        
-        for player in game.team_two:
-            if(player.id == player_id):
-                game.team_two.remove(player)
-                return f"removed {player.name} from Game: {game.id}" 
+        game.remove_player(player_id)
+        self.lobbies[game.id].remove(args["client_id"])
 
-        self.lobies[game.id].remove(args["client_id"])
+        if(not game.has_players()):
+            self.games.pop(game.id)
+            self.lobbies.pop(game.id)
+        return "success"
+
+
 
     def join_game(self,args):
         game = self.games[args["game_id"]]
 
-        if (len(game.team_one) < 2):
-            game.team_one.append(Player.from_json(args["player"]))
-        elif(len(game.team_two) < 2):
-            game.team_two.append(Player.from_json(args["player"]))
-        
-
-        self.lobies[game.id].append(args["client_id"])         
+        game.add_player(Player.from_json(args["player"]))
+        self.lobbies[game.id].append(args["client_id"])         
         return game
 
     def handle_message(self, msg):
