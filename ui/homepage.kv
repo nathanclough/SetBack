@@ -1,0 +1,36 @@
+<HomePage>:
+    ScrollView:
+        do_scroll_x: False
+        do_scroll_y: True
+
+        GridLayout:
+            size_hint_y: None
+            spacing: 10 
+            cols: 1
+            id: layout
+            Label:
+                text: "Setback"
+                font_size: '50sp'
+                size_hint_y: None
+                height: 300
+            Label
+                text: root.connection_status_label
+                size_hint_y: None 
+                height: 20
+            
+            BoxLayout:
+                orientation: 'horizontal'
+                columns: 1
+                spacing: 10
+                size_hint_y: None
+                TextInput:
+                    id: game_input
+                    size_hint_y: None
+                    height: 30
+                    multiline: False
+                Button:
+                    text: 'Create Game'
+                    on_release: root.create_game(game_input.text)
+                    size_hint_y: None
+                    height: 30
+

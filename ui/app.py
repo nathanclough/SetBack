@@ -25,9 +25,9 @@ class SetbackApp(App):
     def build(self):
         self.stateManager = StateManager()
         self.stateManager.response_handlers = self.response_handlers
-        self.homepage = HomePage(self.response_handlers)
+        self.homepage = HomePage(self.response_handlers,name ="homepage")
         self.select_team = SelectTeam(name ="select_team")
-        self.stateManager.add_widget(self.homepage.render())
+        self.stateManager.add_widget(self.homepage)
         self.stateManager.add_widget(self.select_team)
         self.connect_to_server()
         return self.stateManager
@@ -38,11 +38,10 @@ class SetbackApp(App):
     def on_connection(self, connection):
         self.print_message("Connected successfully!")
         self.connection = connection
-        self.homepage.set_connection(connection)
         self.stateManager.set_connection(connection)
 
     def print_message(self, msg):
-        self.homepage.connection_status_label.text = msg
+        self.homepage.connection_status_label = msg
    
 if __name__ == '__main__':
     SetbackApp().run()

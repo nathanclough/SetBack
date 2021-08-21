@@ -29,9 +29,6 @@ class SelectTeam(Screen):
         self.update_state()
         return super().on_enter(*args)
 
-    # def switch_teams(self,args):
-    #     pass
-
     def leave(self):
         id = str(uuid.uuid4())
         request ={ "request_id": id,

@@ -9,6 +9,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
+from kivy.properties import StringProperty
 from kivy.core.window import Window
 from setback import GetGamesResult
 from kivy.clock import Clock
@@ -16,35 +17,22 @@ from kivy.uix.screenmanager import Screen
 import uuid
 import json
 
-class HomePage():
-    def __init__(self, response_handlers) -> None:
+class HomePage(Screen):
+    connection_status_label = StringProperty("connecting ...")
+
+    def __init__(self, response_handlers,**kw):
         self.response_handlers = response_handlers
         self.games = {}
         self.game_buttons = {}
-        self.connection = None
-        
-    def set_connection(self,connection):
-        self.connection = connection
+        super().__init__(**kw)
 
-    def render(self):
-        # get a scrollable view 
-        self.screen = Screen(name='homepage')
-        self.scroll = ScrollView(size_hint=(1, None), size=(Window.width, Window.height))        
-        
-        # Set the connection status to the default connecting 
-        self.connection_status_label = Label(text='connecting...\n',size_hint_y=None,height=20)
-        self.title = Label(text="Setback",font_size='50sp',size_hint_y=None, height= 300)
-        # Create a vertical layout and add the status and create game options 
-        self.menu_layout = GridLayout(cols=1, spacing=10,size_hint_y=None)       
-        self.menu_layout.add_widget(self.title)
-        self.menu_layout.add_widget(self.connection_status_label)
-        self.menu_layout.add_widget(self.get_create_game())
-
-        self.menu_layout.bind(minimum_height=self.menu_layout.setter('height'))
-        self.scroll.add_widget(self.menu_layout)
-        Clock.schedule_interval(self.get_games, 2.5)
-        self.screen.add_widget(self.scroll)
-        return self.screen
+    def on_enter(self, *args):
+        self.get_games_event = Clock.schedule_interval(self.get_games, 5) 
+        return super().on_enter(*args)
+    
+    def on_leave(self, *args):
+        Clock.unschedule(self.get_games_event)
+        return super().on_leave(*args)
 
     def get_create_game(self):
         self.create_game_button = Button(size_hint_y=None,height=30,text="Create Game")
@@ -60,7 +48,7 @@ class HomePage():
 
 
     def get_games(self, dt):
-        if self.connection == None:
+        if self.manager.connection == None:
             return 
         id = str(uuid.uuid4())
         request = {
@@ -73,7 +61,7 @@ class HomePage():
 
         # send the request 
         request = json.dumps(request)
-        self.connection.write(request.encode('utf-8'))
+        self.manager.connection.write(request.encode('utf-8'))
         
     def handle_get_games(self, response):
         result = GetGamesResult.from_json(response)        
@@ -82,11 +70,11 @@ class HomePage():
                 game = result.games[id]
                 self.games[id] = game
                 btn = self.get_join_game_button(id,game)
-                self.menu_layout.add_widget(btn)
+                self.ids.layout.add_widget(btn)
         
         for id in self.games:
             if(not id in result.games):
-                self.menu_layout.remove_widget(self.game_buttons[id])
+                self.ids.layout.remove_widget(self.game_buttons[id])
         
         self.games = result.games 
 
@@ -98,20 +86,20 @@ class HomePage():
             "request_id": id,
             "method": "create_game",
             "args": {
-                "name" : self.textbox.text,
-                "player": self.screen.manager.player
+                "name" : name,
+                "player": self.manager.player
             }
         }
         self.response_handlers[id] = self.handle_create_game
 
         request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-        self.connection.write(request.encode('utf-8'))
+        self.manager.connection.write(request.encode('utf-8'))
 
     def handle_create_game(self,args):
         result = CreateGameResult.from_json(args)
         game = Game([self.screen.manager.player],[],result.name,result.id)
-        self.screen.manager.game = game
-        self.screen.manager.current = 'select_team'
+        self.manager.game = game
+        self.manager.current = 'select_team'
 
     
     def get_join_game_button(self,id,game):
@@ -130,7 +118,7 @@ class HomePage():
         request = { "request_id": request_id, 
             "method" : "join_game",
             "args" : { 
-                "player" : self.screen.manager.player, 
+                "player" : self.manager.player, 
                 "game_id" : game_id,
                 "team": 1
                 }
@@ -138,21 +126,16 @@ class HomePage():
         request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
         self.response_handlers[request_id] = self.handle_join_game
-        self.connection.write(request.encode('utf-8'))
+        self.manager.connection.write(request.encode('utf-8'))
     
     def handle_join_game(self,args):
         result = Game.from_json(args)
         for p in result.team_one:
-            if p.id == self.screen.manager.player.id:
-                self.screen.manager.player.team = 1
+            if p.id == self.manager.player.id:
+                self.manager.player.team = 1
         for p in result.team_two:
-            if p.id == self.screen.manager.player.id:
-                self.screen.manager.player.team = 2
+            if p.id == self.manager.player.id:
+                self.manager.player.team = 2
         
-        self.screen.manager.game = result
-        self.screen.manager.current = 'select_team'
-
-
-
-
-        
+        self.manager.game = result
+        self.manager.current = 'select_team'
