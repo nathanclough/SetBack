@@ -5,27 +5,15 @@ from kivy.uix.screenmanager import ScreenManager
 from protocol_factory import SetbackClientFactory
 from twisted.internet import reactor
 from homepage import HomePage
-from setback import GetGamesResult
 from select_team import SelectTeam
 from state_manager import StateManager
-import json
-import uuid
 
-# A simple kivy App, with a textbox to enter messages, and
-# a large label to display all the messages received from
-# the server
 class SetbackApp(App):
     connection = None
-    textbox = None
-    label = None
-
-    # Handlers for each response where key is request id 
-    response_handlers = {}
 
     def build(self):
         self.stateManager = StateManager()
-        self.stateManager.response_handlers = self.response_handlers
-        self.homepage = HomePage(self.response_handlers,name ="homepage")
+        self.homepage = HomePage(name ="homepage")
         self.select_team = SelectTeam(name ="select_team")
         self.stateManager.add_widget(self.homepage)
         self.stateManager.add_widget(self.select_team)

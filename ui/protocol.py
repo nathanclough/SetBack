@@ -19,6 +19,6 @@ class SetbackClient(protocol.Protocol):
         message = json.loads(data)
 
         # Get the handler and run it 
-        handle_method = self.factory.app.response_handlers.pop(message["request_id"])
+        handle_method = self.factory.app.stateManager.response_handlers.pop(message["request_id"])
         handle_method(message["response"])
 

@@ -20,8 +20,7 @@ import json
 class HomePage(Screen):
     connection_status_label = StringProperty("connecting ...")
 
-    def __init__(self, response_handlers,**kw):
-        self.response_handlers = response_handlers
+    def __init__(self,**kw):
         self.games = {}
         self.game_buttons = {}
         super().__init__(**kw)
@@ -55,7 +54,7 @@ class HomePage(Screen):
         }
         
         # add the handler to the dictionary 
-        self.response_handlers[id] = self.handle_get_games
+        self.manager.response_handlers[id] = self.handle_get_games
 
         # send the request 
         request = json.dumps(request)
@@ -73,7 +72,7 @@ class HomePage(Screen):
                 "player": self.manager.player
             }
         }
-        self.response_handlers[id] = self.handle_create_game
+        self.manager.response_handlers[id] = self.handle_create_game
 
         request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
         self.manager.connection.write(request.encode('utf-8'))
@@ -90,7 +89,7 @@ class HomePage(Screen):
             }
         request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
 
-        self.response_handlers[request_id] = self.handle_join_game
+        self.manager.response_handlers[request_id] = self.handle_join_game
         self.manager.connection.write(request.encode('utf-8'))
     
     # Handlers 
