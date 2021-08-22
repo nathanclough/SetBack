@@ -2,7 +2,7 @@ from ui.select_team import SelectTeam
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager
-from client import SetbackClientFactory
+from protocol_factory import SetbackClientFactory
 from twisted.internet import reactor
 from homepage import HomePage
 from setback import GetGamesResult

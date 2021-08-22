@@ -1,7 +1,7 @@
 from attr import Factory
 from twisted.internet.protocol import ServerFactory
 from twisted.test import proto_helpers
-from server.server import SetbackServerApp, SetbackServerFactory
+from server import SetbackServerApp, SetbackServerFactory
 from setback import CreateGameResult, GetGamesResult, Game, Player
 import json
 import pytest
@@ -77,6 +77,7 @@ class TestServer:
         team = [player]
         game = Game(team_one=team)
         server.app.games = { game.id: game}
+        server.app.lobbies[game.id] = []
 
         request = { "request_id": 1,
             "method": "leave_game",
@@ -93,6 +94,7 @@ class TestServer:
         team = [player]
         game = Game(team_one=team)
         server.app.games = { game.id: game}
+        server.app.lobbies[game.id] = []
 
         request ={ "request_id": 1,
             "method": "leave_game",
@@ -107,7 +109,7 @@ class TestServer:
     def test_join_game(self,server):
         game = Game()
         server.app.games = {game.id: game}
-        server.app.lobies[game.id] = []
+        server.app.lobbies[game.id] = []
 
         player = Player("Nathan",2,123)
         request = { "request_id": 1, 

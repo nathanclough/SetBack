@@ -7,5 +7,6 @@ class StateManager(ScreenManager):
     player = Player("Player",2)
     connection = None
     response_handlers = None
+    event_handlers = None
     def set_connection(self, connection):
         self.connection = connection

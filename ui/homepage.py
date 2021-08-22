@@ -34,18 +34,16 @@ class HomePage(Screen):
         Clock.unschedule(self.get_games_event)
         return super().on_leave(*args)
 
-    def get_create_game(self):
-        self.create_game_button = Button(size_hint_y=None,height=30,text="Create Game")
-        self.create_game_button.bind(on_press=self.create_game)
-        
-        self.textbox = TextInput(size_hint_y=None,height=30, multiline=False)
-        
-        # Add to the layout 
-        self.textbox_layout = BoxLayout(orientation="horizontal",size_hint_y=None,height=20)
-        self.textbox_layout.add_widget(self.textbox)
-        self.textbox_layout.add_widget(self.create_game_button)
-        return self.textbox_layout
-
+    def get_join_game_button(self,id,game):
+        btn =  Button(text=f"Join: {game.name}", size_hint_y=None, height=50)
+        btn.bind(on_release=self.switch_to_select_team) 
+        self.game_buttons[id] = btn
+        return btn
+    
+    def switch_to_select_team(self,args):
+        for id in self.game_buttons:
+            if args == self.game_buttons[id]:
+                self.join_game(id)
 
     def get_games(self, dt):
         if self.manager.connection == None:
@@ -62,23 +60,8 @@ class HomePage(Screen):
         # send the request 
         request = json.dumps(request)
         self.manager.connection.write(request.encode('utf-8'))
-        
-    def handle_get_games(self, response):
-        result = GetGamesResult.from_json(response)        
-        for id  in result.games:
-            if(not id in self.games):
-                game = result.games[id]
-                self.games[id] = game
-                btn = self.get_join_game_button(id,game)
-                self.ids.layout.add_widget(btn)
-        
-        for id in self.games:
-            if(not id in result.games):
-                self.ids.layout.remove_widget(self.game_buttons[id])
-        
-        self.games = result.games 
-
-
+    
+    # Events 
     def create_game(self, name):
         id = str(uuid.uuid4())
 
@@ -95,24 +78,6 @@ class HomePage(Screen):
         request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
         self.manager.connection.write(request.encode('utf-8'))
 
-    def handle_create_game(self,args):
-        result = CreateGameResult.from_json(args)
-        game = Game([self.screen.manager.player],[],result.name,result.id)
-        self.manager.game = game
-        self.manager.current = 'select_team'
-
-    
-    def get_join_game_button(self,id,game):
-        btn =  Button(text=f"Join: {game.name}", size_hint_y=None, height=50)
-        btn.bind(on_release=self.switch_to_select_team) 
-        self.game_buttons[id] = btn
-        return btn
-    
-    def switch_to_select_team(self,args):
-        for id in self.game_buttons:
-            if args == self.game_buttons[id]:
-                self.join_game(id)
-
     def join_game(self,game_id):
         request_id = str(uuid.uuid4())
         request = { "request_id": request_id, 
@@ -128,6 +93,7 @@ class HomePage(Screen):
         self.response_handlers[request_id] = self.handle_join_game
         self.manager.connection.write(request.encode('utf-8'))
     
+    # Handlers 
     def handle_join_game(self,args):
         result = Game.from_json(args)
         for p in result.team_one:
@@ -139,3 +105,24 @@ class HomePage(Screen):
         
         self.manager.game = result
         self.manager.current = 'select_team'
+
+    def handle_create_game(self,args):
+        result = CreateGameResult.from_json(args)
+        game = Game([self.manager.player],[],result.name,result.id)
+        self.manager.game = game
+        self.manager.current = 'select_team'
+
+    def handle_get_games(self, response):
+        result = GetGamesResult.from_json(response)        
+        for id  in result.games:
+            if(not id in self.games):
+                game = result.games[id]
+                self.games[id] = game
+                btn = self.get_join_game_button(id,game)
+                self.ids.layout.add_widget(btn)
+        
+        for id in self.games:
+            if(not id in result.games):
+                self.ids.layout.remove_widget(self.game_buttons[id])
+        
+        self.games = result.games 
