@@ -7,6 +7,7 @@ from twisted.internet import reactor
 from homepage import HomePage
 from select_team import SelectTeam
 from state_manager import StateManager
+from table import Table
 
 class SetbackApp(App):
     connection = None
@@ -15,8 +16,10 @@ class SetbackApp(App):
         self.stateManager = StateManager()
         self.homepage = HomePage(name ="homepage")
         self.select_team = SelectTeam(name ="select_team")
+        self.table = Table(name="table")
         self.stateManager.add_widget(self.homepage)
         self.stateManager.add_widget(self.select_team)
+        self.stateManager.add_widget(self.table)
         self.connect_to_server()
         return self.stateManager
         

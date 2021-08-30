@@ -1,4 +1,5 @@
 # install_twisted_rector must be called before importing and using the reactor
+from setback.events.game_update_event import GameUpdateEvent
 from kivy.support import install_twisted_reactor
 
 install_twisted_reactor()
@@ -6,65 +7,65 @@ install_twisted_reactor()
 from twisted.internet import reactor
 from kivy.app import App
 from kivy.uix.label import Label
-from setback import Game, CreateGameResult, GetGamesResult, Player
+from setback import Game, CreateGameEvent, UpdateJoinableGamesEvent, Player
 from server.protocol_factory import SetbackServerFactory
 import json 
-
+from server.lobby import Lobby
 class SetbackServerApp(App):
-    label = None
-    games = {}
-    # key is game id, value is list of client id's 
-    lobbies = {}
+    lobbies = []
 
     def build(self):
         self.label = Label(text="server started\n")
-        reactor.listenTCP(8000, SetbackServerFactory(self))
+        self.factory = SetbackServerFactory(self)
+        reactor.listenTCP(8000, self.factory)
         return self.label
 
-    def create_game(self,args):
-        game = Game()
-        game.name = args["name"]
-        game.team_one.append(Player.from_json(args["player"]))
+    def handle_request(self,client,request):
+        try:
+            method = getattr(self,request["method"])
+            args = request.get("args",False)
+            if args:
+                args["client_id"] = client.id
+                method(client,args)
+             
+        except AttributeError as e:
+            print(f"{e.args[0]}".encode("utf-8"))
+            client.transport.write(f"{e.args[0]}".encode("utf-8"))
 
-        self.games[game.id] = game
-        self.lobbies[game.id] = [ args["client_id"] ]
+    def create_game(self,client,args):
+        lobby = Lobby(args["name"])
+        self.lobbies.append(lobby)
+        lobby.join(client,Player.from_json(args["player"]).name)
+        self.update_joinable_games()
 
-        result = CreateGameResult(game.name,game.id)
-        return result
-    
-    def get_games(self):
-        not_full_games = {k:v for (k,v) in self.games.items() if not v.is_full()}
-        result = GetGamesResult(not_full_games)
-        return result
-    
-    def leave_game(self,args):
+    def get_games(self,client):
+        event = self.get_joinable_games()
+        client.throw_event(event)
+
+    def join_game(self,client,args):
         game_id = args["game_id"]
-        player_id = args["player_id"]
+
+        for lobby in self.lobbies:
+            if lobby.game.id == game_id:
+                player = Player.from_json(args["player"])
+                lobby.join(client,player.name)
+    
+    def get_joinable_games(self):
+        not_full_games = []
+        for lobby in self.lobbies:
+            if len(lobby.clients) == 0:
+                self.lobbies.remove(lobby)
+            elif not lobby.game.is_full():
+                not_full_games.append(lobby.game)
+
+        return UpdateJoinableGamesEvent(not_full_games)
+    
+    def update_joinable_games(self):
+        result = self.get_joinable_games()
         
-        game = self.games[game_id]
-        game.remove_player(player_id)
-
-        if( any(x == args["client_id"] for x in self.lobbies[game.id])):
-            self.lobbies[game.id].remove(args["client_id"])
-
-        if(not game.has_players()):
-            self.games.pop(game.id)
-            self.lobbies.pop(game.id)
-        return "success"
-
-    def join_game(self,args):
-        game = self.games[args["game_id"]]
-
-        game.add_player(Player.from_json(args["player"]))
-        self.lobbies[game.id].append(args["client_id"])         
-        return game
-
-    def handle_message(self, msg):
-        msg = msg.decode('utf-8')
-        self.games.append(msg)
-
-        response = json.dumps(self.games)
-        return response.encode('utf-8')
+        for client in self.factory.clients:
+            if client.lobby is None:
+                client.throw_event(result)
 
 if __name__ == '__main__':
     SetbackServerApp().run()

@@ -2,7 +2,7 @@ from attr import Factory
 from twisted.internet.protocol import ServerFactory
 from twisted.test import proto_helpers
 from server import SetbackServerApp, SetbackServerFactory
-from setback import CreateGameResult, GetGamesResult, Game, Player
+from setback import CreateGameEvent, UpdateJoinableGamesEvent, Game, Player
 import json
 import pytest
 
@@ -55,7 +55,7 @@ class TestServer:
         result = server.get_result()
         
         # Convert it to result object from json 
-        create_game_result = CreateGameResult.from_json(json.loads(result)["response"])
+        create_game_result = CreateGameEvent.from_json(json.loads(result)["response"])
         
         # Verify that the result is correct
         assert create_game_result.id != None and create_game_result.name == "Game1"
@@ -69,7 +69,7 @@ class TestServer:
 
         server.send_request(request)
         result = server.get_result()
-        get_games_result = GetGamesResult.from_json(json.loads(result)["response"])
+        get_games_result = UpdateJoinableGamesEvent.from_json(json.loads(result)["response"])
         assert len(get_games_result.games) == 1 
 
     def test_leave_game_team_one(self,server:FakeServer):
@@ -141,7 +141,7 @@ class TestServer:
 
         server.send_request(request)
         result = server.get_result()
-        get_games_result = GetGamesResult.from_json(json.loads(result)["response"])
+        get_games_result = UpdateJoinableGamesEvent.from_json(json.loads(result)["response"])
         assert len(get_games_result.games) == 0
 
     def test_join_game_team_is_full_joins_other_team(self, server:FakeServer):

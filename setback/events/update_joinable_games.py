@@ -1,13 +1,13 @@
 from setback.game.game_instance import Game
 
-class GetGamesResult():
+class UpdateJoinableGamesEvent():
     def __init__(self,games) -> None:
         self.games = games
-
+        self.event = "update_joinable_games_event"
     @classmethod
     def from_json(cls,data):
-        games = {}
+        games = []
         for game in data["games"]:
-            game = Game.from_json(data["games"][game])
-            games[game.id] = game
+            game = Game.from_json(game)
+            games.append(game)
         return cls(games)

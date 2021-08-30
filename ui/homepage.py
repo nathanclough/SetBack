@@ -1,5 +1,5 @@
 from logging import root
-from setback.results.create_game_result import CreateGameResult
+from setback.results.create_game_result import CreateGameEvent
 from setback import Game
 from typing import OrderedDict
 from kivy.core import text
@@ -11,7 +11,7 @@ from kivy.uix.button import Button
 from kivy.uix.scrollview import ScrollView
 from kivy.properties import StringProperty
 from kivy.core.window import Window
-from setback import GetGamesResult
+from setback import UpdateJoinableGamesEvent
 from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen
 import uuid
@@ -19,6 +19,7 @@ import json
 
 class HomePage(Screen):
     connection_status_label = StringProperty("connecting ...")
+    username = StringProperty("")
 
     def __init__(self,**kw):
         self.games = {}
@@ -26,60 +27,44 @@ class HomePage(Screen):
         super().__init__(**kw)
 
     def on_enter(self, *args):
-        self.get_games_event = Clock.schedule_interval(self.get_games, 5) 
+        self.manager.bind(games_to_join=self.render_buttons)
+        self.username = self.manager.player.name
         return super().on_enter(*args)
-    
+
     def on_leave(self, *args):
-        Clock.unschedule(self.get_games_event)
         return super().on_leave(*args)
 
-    def get_join_game_button(self,id,game):
-        btn =  Button(text=f"Join: {game.name}", size_hint_y=None, height=50)
-        btn.bind(on_release=self.switch_to_select_team) 
-        self.game_buttons[id] = btn
-        return btn
-    
-    def switch_to_select_team(self,args):
-        for id in self.game_buttons:
-            if args == self.game_buttons[id]:
-                self.join_game(id)
-
-    def get_games(self, dt):
-        if self.manager.connection == None:
-            return 
-        id = str(uuid.uuid4())
-        request = {
-            "request_id" : id,
-            "method": "get_games"
-        }
+    def render_buttons(self,instance,value):
+        self.ids.button_layout.clear_widgets()
+        for game in self.manager.games_to_join:
+            btn =  Button(text=f"Join: {game.name}",size_hint_y=None, height=50)
+            btn.id = game.id
+            btn.bind(on_release=self.switch_to_select_team) 
+            self.ids.button_layout.add_widget(btn)
         
-        # add the handler to the dictionary 
-        self.manager.response_handlers[id] = self.handle_get_games
-
-        # send the request 
-        request = json.dumps(request)
-        self.manager.connection.write(request.encode('utf-8'))
+    def switch_to_select_team(self,args):
+        self.join_game(args.id)
     
-    # Events 
     def create_game(self, name):
-        id = str(uuid.uuid4())
-
         request = {
-            "request_id": id,
             "method": "create_game",
             "args": {
                 "name" : name,
                 "player": self.manager.player
             }
         }
-        self.manager.response_handlers[id] = self.handle_create_game
 
         request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
         self.manager.connection.write(request.encode('utf-8'))
+        self.manager.current = "select_team"
+    
+    def update_username(self,name):
+        self.username = name
+        self.ids.name_input.text = "enter user name"
+        self.manager.player.name = name
 
     def join_game(self,game_id):
-        request_id = str(uuid.uuid4())
-        request = { "request_id": request_id, 
+        request = { 
             "method" : "join_game",
             "args" : { 
                 "player" : self.manager.player, 
@@ -88,40 +73,24 @@ class HomePage(Screen):
                 }
             }
         request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
-
-        self.manager.response_handlers[request_id] = self.handle_join_game
         self.manager.connection.write(request.encode('utf-8'))
-    
-    # Handlers 
-    def handle_join_game(self,args):
-        result = Game.from_json(args)
-        for p in result.team_one:
-            if p.id == self.manager.player.id:
-                self.manager.player.team = 1
-        for p in result.team_two:
-            if p.id == self.manager.player.id:
-                self.manager.player.team = 2
+        self.manager.current = "select_team"
+    # # Handlers 
+    # def handle_join_game(self,args):
+    #     result = Game.from_json(args)
+    #     for p in result.team_one:
+    #         if p.id == self.manager.player.id:
+    #             self.manager.player.team = 1
+    #     for p in result.team_two:
+    #         if p.id == self.manager.player.id:
+    #             self.manager.player.team = 2
         
-        self.manager.game = result
-        self.manager.current = 'select_team'
+    #     self.manager.game = result
+    #     self.manager.current = 'select_team'
 
-    def handle_create_game(self,args):
-        result = CreateGameResult.from_json(args)
-        game = Game([self.manager.player],[],result.name,result.id)
-        self.manager.game = game
-        self.manager.current = 'select_team'
+    # def handle_create_game(self,args):
+    #     result = CreateGameEvent.from_json(args)
+    #     game = Game([self.manager.player],[],result.name,result.id)
+    #     self.manager.game = game
+    #     self.manager.current = 'select_team'
 
-    def handle_get_games(self, response):
-        result = GetGamesResult.from_json(response)        
-        for id  in result.games:
-            if(not id in self.games):
-                game = result.games[id]
-                self.games[id] = game
-                btn = self.get_join_game_button(id,game)
-                self.ids.layout.add_widget(btn)
-        
-        for id in self.games:
-            if(not id in result.games):
-                self.ids.layout.remove_widget(self.game_buttons[id])
-        
-        self.games = result.games 
