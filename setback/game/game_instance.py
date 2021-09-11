@@ -18,8 +18,10 @@ class Game:
     def add_player(self,player):
         if (len(self.team_one) < 2):
             self.team_one.append(player)
+            return 1
         elif(len(self.team_two) < 2):
             self.team_two.append(player)    
+            return 2
 
     def remove_player(self,player_id):
         for player in self.team_one:

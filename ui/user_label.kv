@@ -1,0 +1,35 @@
+<UserLabel>:
+    current_turn: False
+    bid: ""
+    player_name: "Player Name"
+    team: ""
+    canvas:
+        Color:
+            rgb: rgba("#e07a5f") if self.team == 1 else rgba("#f2cc8f")
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [25]
+        Color: 
+            rgb: rgba("#3d405b") if self.current_turn == False else rgba("#d00000")
+        Line:
+            rounded_rectangle:(self.pos[0]+1.3,self.pos[1]+1.3,self.size[0]-2.6,self.size[1]-2.6,20,200)
+            width: 1.3
+       
+    GridLayout:
+        rows: 2 
+        cols: 1
+        Label: 
+            text: root.player_name
+            size_hint_x:
+            font_size: '25sp'
+            color: rgba("000000")
+
+        Label:
+            text: root.bid
+            font_size: '25sp'
+            color: rgba("000000")
+
+
+
+        

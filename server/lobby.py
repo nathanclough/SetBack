@@ -1,4 +1,4 @@
-from setback import Game, Player, CreateGameEvent, GameUpdateEvent
+from setback import Game, Player, GameStartedEvent, GameUpdateEvent, Game
 
 class Lobby():
     def __init__(self,name) -> None:
@@ -20,13 +20,13 @@ class Lobby():
         self.clients.remove(client)
         self.game.remove_player(client.id)
 
-    def start_game(self):
+    def start_game(self,client,args):
         if(self.game.started == True):
             return "success"
 
         if(self.game.is_full()):
             self.game.started = True
-            event = { "event": "game_started_event"}
+            event = GameStartedEvent()
             self.update(event)
             return "success"
         else:
@@ -36,7 +36,7 @@ class Lobby():
         self.clients.append(client)
         client.lobby = self
         player = Player(name,"team_one",client.id)
-        self.game.add_player(player)
+        player.team = self.game.add_player(player)
         self.update(GameUpdateEvent(self.game))
     
     def leave_game(self,client,args):
@@ -48,4 +48,5 @@ class Lobby():
 
     def update(self,event):
         for client in self.clients:
+            event.player_id = client.id
             client.throw_event(event)

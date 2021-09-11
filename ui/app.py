@@ -8,6 +8,8 @@ from homepage import HomePage
 from select_team import SelectTeam
 from state_manager import StateManager
 from table import Table
+from user_label import UserLabel
+from score_board import ScoreBoard
 
 class SetbackApp(App):
     connection = None

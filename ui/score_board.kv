@@ -1,0 +1,47 @@
+<ScoreBoard>:
+    team_one: "team_one"
+    team_two: "team_two"
+    team_one_round_score: "1"
+    team_one_game_score: "1"
+    team_two_round_score: "2"
+    team_two_game_score: "2"
+    orientation: "vertical"
+    canvas:
+        Color:
+            rgb: rgba("f4f1de")
+        RoundedRectangle:
+            size: self.size
+            pos: self.pos
+            radius: [25]
+        Color: 
+            rgb: rgba("#3d405b")
+        Line:
+            rounded_rectangle:(self.pos[0]+1.3,self.pos[1]+1.3,self.size[0]-2.6,self.size[1]-2.6,20,200)
+            width: 1.3
+    TextLabel:
+        text: "Trump: Clubs"
+        size_hint: 1, .25
+    BoxLayout:
+        orientation: "horizontal"
+        BoxLayout:
+            orientation: "vertical"
+            TextLabel:
+                text: root.team_one
+            TextLabel: 
+                text: root.team_one_game_score
+            TextLabel:
+                text: root.team_one_round_score
+        BoxLayout:
+            orientation: "vertical"
+            TextLabel: 
+                text: root.team_two
+            TextLabel: 
+                text: root.team_two_game_score
+            TextLabel:
+                text: root.team_two_round_score
+                
+<TextLabel@Label>:
+    default_color: rgba("000000")
+    color: root.default_color
+    text: self.text
+         

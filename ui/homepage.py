@@ -1,20 +1,6 @@
-from logging import root
-from setback.results.create_game_result import CreateGameEvent
-from setback import Game
-from typing import OrderedDict
-from kivy.core import text
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
-from kivy.uix.scrollview import ScrollView
 from kivy.properties import StringProperty
-from kivy.core.window import Window
-from setback import UpdateJoinableGamesEvent
-from kivy.clock import Clock
 from kivy.uix.screenmanager import Screen
-import uuid
 import json
 
 class HomePage(Screen):
@@ -29,6 +15,7 @@ class HomePage(Screen):
     def on_enter(self, *args):
         self.manager.bind(games_to_join=self.render_buttons)
         self.username = self.manager.player.name
+        self.manager.get_games()
         return super().on_enter(*args)
 
     def on_leave(self, *args):

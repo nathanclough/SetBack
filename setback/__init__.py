@@ -9,3 +9,4 @@ from setback.game.game_instance import Game
 from setback.results.create_game_result import CreateGameEvent
 from setback.events.update_joinable_games import UpdateJoinableGamesEvent
 from setback.events.game_update_event import GameUpdateEvent
+from setback.events.game_started_event import GameStartedEvent

@@ -1,5 +1,95 @@
+#:include user_label.kv
+#:include score_board.kv
+
 <Table>:
-    BoxLayout:
-        orientation: 'vertical'
-        Label:
-            text: "Table Screen"
+    canvas:
+        Color : 
+            rgb: rgba("#81b29a")
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    
+    # Played Cards 
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'center'
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint: .5,.25
+            Image:
+                source: 'card-images/spades/ace.png'
+            Image:
+                source: 'card-images/diamonds/ace.png'
+            Image:
+                source: 'card-images/spades/ace.png'
+            Image:
+                source: 'card-images/spades/ace.png'
+
+    # Scoreboard
+    AnchorLayout:
+        anchor_x: 'left'
+        anchor_y: 'top'
+        ScoreBoard:
+            size_hint: .35,.25
+
+    
+    # Round Info
+    AnchorLayout:
+        anchor_x: 'right'
+        anchor_y: 'top'
+        BoxLayout:
+            size_hint: .35,.25
+            orientation: "vertical"
+
+    # Other Team
+    AnchorLayout:
+        anchor_x: 'right'
+        anchor_y: 'center'
+        UserLabel:
+            player_name: "Abby"
+            team: "1"
+            size_hint: .15,.15
+    
+    AnchorLayout:
+        anchor_x: 'left'
+        anchor_y: 'center'
+        UserLabel:
+            player_name: "Aaron"
+            team: "1"
+            size_hint: .15,.15
+    
+    # Current Teamate
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'top'
+        UserLabel:
+            player_name: root.teamate_name
+            team: root.teamate_team
+            size_hint: .15,.15
+    
+    # Current User 
+    AnchorLayout:
+        anchor_x: 'left'
+        anchor_y: 'bottom'
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint: 1,.25
+            UserLabel:
+                team: root.user_team
+                bid: "Bid: 3"
+                current_turn: True
+                player_name: root.user_name
+            Image:
+                source: 'card-images/spades/ace.png'
+            Image:
+                source: 'card-images/diamonds/ace.png'
+            Image:
+                source: 'card-images/spades/ace.png'
+            Image:
+                source: 'card-images/diamonds/ace.png'
+            Image:
+                source: 'card-images/spades/ace.png'
+            Image:
+                source: 'card-images/diamonds/ace.png'                
+            
+

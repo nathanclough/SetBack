@@ -1,9 +1,11 @@
 from setback.game.game_instance import Game
+from setback.events.event_base import EventBase
 
-class UpdateJoinableGamesEvent():
+class UpdateJoinableGamesEvent(EventBase):
     def __init__(self,games) -> None:
+        super().__init__("update_joinable_games_event")
         self.games = games
-        self.event = "update_joinable_games_event"
+
     @classmethod
     def from_json(cls,data):
         games = []
