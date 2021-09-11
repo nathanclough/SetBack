@@ -46,16 +46,14 @@
         anchor_x: 'right'
         anchor_y: 'center'
         UserLabel:
-            player_name: "Abby"
-            team: "1"
+            id: other_team_player_one
             size_hint: .15,.15
     
     AnchorLayout:
         anchor_x: 'left'
         anchor_y: 'center'
         UserLabel:
-            player_name: "Aaron"
-            team: "1"
+            id: other_team_player_two
             size_hint: .15,.15
     
     # Current Teamate
@@ -63,8 +61,7 @@
         anchor_x: 'center'
         anchor_y: 'top'
         UserLabel:
-            player_name: root.teamate_name
-            team: root.teamate_team
+            id: current_teamate
             size_hint: .15,.15
     
     # Current User 
@@ -75,10 +72,7 @@
             orientation: "horizontal"
             size_hint: 1,.25
             UserLabel:
-                team: root.user_team
-                bid: "Bid: 3"
-                current_turn: True
-                player_name: root.user_name
+                id: current_user
             Image:
                 source: 'card-images/spades/ace.png'
             Image:

@@ -16,6 +16,12 @@ class Player():
         if(len(self.cards) + len(cards) > 6):
             raise Exception("Player can only have 6 cards")
         self.cards.extend(cards)
+    
+    def get_opposing_team_number(self):
+        if self.team == 1:
+            return 2
+        else:
+            return 1
 
     @classmethod
     def from_json(cls,data):

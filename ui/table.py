@@ -4,22 +4,21 @@ from kivy.properties import StringProperty
 from setback import Player
 
 class Table(Screen):
-    user_name = StringProperty("")
-    user_team = StringProperty("")
-    teamate_name = StringProperty("")
-    teamate_team = StringProperty("")
-
     def __init__(self, **kw):
         super().__init__(**kw)
 
     def on_game_update_event(self, *largs):
-        self.user_name = self.manager.player.name
-        self.user_team = f"Team {self.manager.player.team}"
-
+        # Set the current team 
+        user = self.manager.player
+        self.ids.current_user.set_user(user)
+        
         teamate = [player for player in self.manager.teams[self.manager.player.team] if player.id != self.manager.player.id ].pop()
-        self.teamate_name = teamate.name
-        self.teamate_team = f"Team {teamate.team}"
-    
+        self.ids.current_teamate.set_user(teamate)
+
+        # Set the opposing team
+        self.ids.other_team_player_two.set_user(self.manager.teams[user.get_opposing_team_number()][0])
+        self.ids.other_team_player_one.set_user(self.manager.teams[user.get_opposing_team_number()][1])
+
     def on_enter(self, *args):
         self.manager.bind(on_game_update_event=self.on_game_update_event)
         if not self.manager.game is None:
