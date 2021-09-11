@@ -4,6 +4,12 @@ class Lobby():
     def __init__(self,name) -> None:
         self.game = Game(name=name)
         self.clients = []
+
+    def is_full(self):
+        if len(self.clients) == 4: 
+            return True
+        else:
+            return False
     
     def handle_event(self,client,request):
         try:

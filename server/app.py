@@ -46,9 +46,11 @@ class SetbackServerApp(App):
         game_id = args["game_id"]
 
         for lobby in self.lobbies:
-            if lobby.game.id == game_id:
+            if lobby.game.id == game_id and not lobby.is_full():
                 player = Player.from_json(args["player"])
                 lobby.join(client,player.name)
+            else:
+                self.get_games(client)
     
     def get_joinable_games(self):
         not_full_games = []
