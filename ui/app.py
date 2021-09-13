@@ -13,9 +13,6 @@ from views.table import Table
 from views.homepage import HomePage
 from views.select_team import SelectTeam
 
-
-
-
 class SetbackApp(App):
     connection = None
 

@@ -15,7 +15,6 @@ class SetbackClientFactory(protocol.ClientFactory):
         self.app.print_message('Lost connection.')
         self.reconnect()
          
-
     def clientConnectionFailed(self, connector, reason):
         self.app.print_message('Connection failed.')
         self.reconnect()

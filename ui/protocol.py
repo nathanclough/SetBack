@@ -2,11 +2,9 @@
 from __future__ import unicode_literals
 from logging import exception
 from setback.events.update_joinable_games import UpdateJoinableGamesEvent
-
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
 
-# A Simple Client that send messages to the Echo Server
 from twisted.internet import protocol
 import json
 from time import sleep
