@@ -1,7 +1,7 @@
 # install_twisted_rector must be called before importing the reactor
 from __future__ import unicode_literals
 from logging import exception
-from setback.events.update_joinable_games import UpdateJoinableGamesEvent
+from setback.events.update_joinable_lobbies import UpdateJoinableLobbiesEvent
 from kivy.support import install_twisted_reactor
 install_twisted_reactor()
 

@@ -1,9 +1,9 @@
 from setback.game.game_instance import Game
 from setback.events.event_base import EventBase
 
-class UpdateJoinableGamesEvent(EventBase):
+class UpdateJoinableLobbiesEvent(EventBase):
     def __init__(self,games) -> None:
-        super().__init__("update_joinable_games_event")
+        super().__init__("update_joinable_lobbies_event")
         self.games = games
 
     @classmethod

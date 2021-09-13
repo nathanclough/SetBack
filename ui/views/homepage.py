@@ -32,9 +32,9 @@ class HomePage(Screen):
     def switch_to_select_team(self,args):
         self.join_game(args.id)
     
-    def create_game(self, name):
+    def create_lobby(self, name):
         request = {
-            "method": "create_game",
+            "method": "create_lobby",
             "args": {
                 "name" : name,
                 "player": self.manager.player
@@ -62,22 +62,4 @@ class HomePage(Screen):
         request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
         self.manager.connection.write(request.encode('utf-8'))
         self.manager.current = "select_team"
-    # # Handlers 
-    # def handle_join_game(self,args):
-    #     result = Game.from_json(args)
-    #     for p in result.team_one:
-    #         if p.id == self.manager.player.id:
-    #             self.manager.player.team = 1
-    #     for p in result.team_two:
-    #         if p.id == self.manager.player.id:
-    #             self.manager.player.team = 2
-        
-    #     self.manager.game = result
-    #     self.manager.current = 'select_team'
-
-    # def handle_create_game(self,args):
-    #     result = CreateGameEvent.from_json(args)
-    #     game = Game([self.manager.player],[],result.name,result.id)
-    #     self.manager.game = game
-    #     self.manager.current = 'select_team'
 

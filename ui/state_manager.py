@@ -1,4 +1,4 @@
-from setback.events.update_joinable_games import UpdateJoinableGamesEvent
+from setback.events.update_joinable_lobbies import UpdateJoinableLobbiesEvent
 from setback.events.game_update_event import GameUpdateEvent
 from kivy.uix.screenmanager import ScreenManager
 from setback import Player
@@ -18,7 +18,7 @@ class StateManager(ScreenManager):
         self.player = Player("Player",1)
         self.register_event("game_update_event",self.handle_game_update_event)
         self.register_event("game_started_event",self.handle_game_started_event)
-        self.register_event("update_joinable_games_event",self.handle_update_joinable_games_event)
+        self.register_event("update_joinable_lobbies_event",self.handle_update_joinable_lobbies_event)
         super().__init__(**kwargs)
     
     # key is event name and handler is list of subscribers
@@ -54,10 +54,10 @@ class StateManager(ScreenManager):
         self.player = next((player for player in self.team_one + self.team_two if player.id == self.player.id),None)
         self.dispatch('on_game_update_event')
 
-    def handle_update_joinable_games_event(self,event):
-        event = UpdateJoinableGamesEvent.from_json(event)
+    def handle_update_joinable_lobbies_event(self,event):
+        event = UpdateJoinableLobbiesEvent.from_json(event)
         self.games_to_join = event.games
-        self.dispatch('on_update_joinable_games_event')
+        self.dispatch('on_update_joinable_lobbies_event')
 
     def handle_game_started_event(self, event):
         self.current = "table"
@@ -71,7 +71,7 @@ class StateManager(ScreenManager):
         if self.connection is not None:
             self.connection.write(request.encode('utf-8'))
 
-    def on_update_joinable_games_event(self):
+    def on_update_joinable_lobbies_event(self):
         pass
 
     def on_game_started_event(self):

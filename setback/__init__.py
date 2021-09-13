@@ -6,7 +6,7 @@ from setback.game.card import Card
 from setback.game.dealer import Dealer
 from setback.game.evaluator import Evaluator
 from setback.game.game_instance import Game
-from setback.results.create_game_result import CreateGameEvent
-from setback.events.update_joinable_games import UpdateJoinableGamesEvent
+from setback.events.create_lobby_event import CreateLobbyEvent
+from setback.events.update_joinable_lobbies import UpdateJoinableLobbiesEvent
 from setback.events.game_update_event import GameUpdateEvent
 from setback.events.game_started_event import GameStartedEvent

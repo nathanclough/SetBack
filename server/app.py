@@ -7,7 +7,7 @@ install_twisted_reactor()
 from twisted.internet import reactor
 from kivy.app import App
 from kivy.uix.label import Label
-from setback import Game, CreateGameEvent, UpdateJoinableGamesEvent, Player
+from setback import Game, CreateLobbyEvent, UpdateJoinableLobbiesEvent, Player
 from server.protocol_factory import SetbackServerFactory
 import json 
 from server.lobby import Lobby
@@ -32,11 +32,11 @@ class SetbackServerApp(App):
             print(f"{e.args[0]}".encode("utf-8"))
             client.transport.write(f"{e.args[0]}".encode("utf-8"))
 
-    def create_game(self,client,args):
+    def create_lobby(self,client,args):
         lobby = Lobby(args["name"])
         self.lobbies.append(lobby)
         lobby.join(client,Player.from_json(args["player"]).name)
-        self.update_joinable_games()
+        self.update_joinable_lobbies()
 
     def get_games(self,client):
         event = self.get_joinable_games()
@@ -60,9 +60,9 @@ class SetbackServerApp(App):
             elif not lobby.game.is_full():
                 not_full_games.append(lobby.game)
 
-        return UpdateJoinableGamesEvent(not_full_games)
+        return UpdateJoinableLobbiesEvent(not_full_games)
     
-    def update_joinable_games(self):
+    def update_joinable_lobbies(self):
         result = self.get_joinable_games()
         
         for client in self.factory.clients:
