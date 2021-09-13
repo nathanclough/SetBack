@@ -38,11 +38,11 @@ class SetbackServerApp(App):
         lobby.join(client,Player.from_json(args["player"]).name)
         self.update_joinable_lobbies()
 
-    def get_games(self,client):
-        event = self.get_joinable_games()
+    def get_lobbies(self,client):
+        event = self.get_joinable_lobbies()
         client.throw_event(event)
 
-    def join_game(self,client,args):
+    def join_lobby(self,client,args):
         game_id = args["game_id"]
 
         for lobby in self.lobbies:
@@ -50,9 +50,9 @@ class SetbackServerApp(App):
                 player = Player.from_json(args["player"])
                 lobby.join(client,player.name)
             else:
-                self.get_games(client)
+                self.get_lobbies(client)
     
-    def get_joinable_games(self):
+    def get_joinable_lobbies(self):
         not_full_games = []
         for lobby in self.lobbies:
             if len(lobby.clients) == 0:
@@ -63,7 +63,7 @@ class SetbackServerApp(App):
         return UpdateJoinableLobbiesEvent(not_full_games)
     
     def update_joinable_lobbies(self):
-        result = self.get_joinable_games()
+        result = self.get_joinable_lobbies()
         
         for client in self.factory.clients:
             if client.lobby is None:

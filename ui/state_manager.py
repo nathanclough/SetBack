@@ -63,9 +63,9 @@ class StateManager(ScreenManager):
         self.current = "table"
         self.dispatch('on_game_started_event')
 
-    def get_games(self,*args):
+    def get_lobbies(self,*args):
         request = {
-            "method": "get_games",
+            "method": "get_lobbies",
         }
         request = json.dumps(request, default=lambda o: o.__dict__, sort_keys=True, indent=4)
         if self.connection is not None:

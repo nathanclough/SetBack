@@ -25,7 +25,7 @@ class SetbackServer(protocol.Protocol):
         print(f"connected {self}")
 
         # give a list of the current games
-        event = self.factory.app.get_joinable_games()
+        event = self.factory.app.get_joinable_lobbies()
         self.throw_event(event)
 
     

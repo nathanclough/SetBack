@@ -15,7 +15,7 @@ class HomePage(Screen):
     def on_enter(self, *args):
         self.manager.bind(games_to_join=self.render_buttons)
         self.username = self.manager.player.name
-        self.manager.get_games()
+        self.manager.get_lobbies()
         return super().on_enter(*args)
 
     def on_leave(self, *args):
@@ -30,7 +30,7 @@ class HomePage(Screen):
             self.ids.button_layout.add_widget(btn)
         
     def switch_to_select_team(self,args):
-        self.join_game(args.id)
+        self.join_lobby(args.id)
     
     def create_lobby(self, name):
         request = {
@@ -50,9 +50,9 @@ class HomePage(Screen):
         self.ids.name_input.text = "enter user name"
         self.manager.player.name = name
 
-    def join_game(self,game_id):
+    def join_lobby(self,game_id):
         request = { 
-            "method" : "join_game",
+            "method" : "join_lobby",
             "args" : { 
                 "player" : self.manager.player, 
                 "game_id" : game_id,
