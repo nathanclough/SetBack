@@ -1,15 +1,20 @@
-from ui.select_team import SelectTeam
 from kivy.app import App
-from kivy.uix.button import Button
 from kivy.uix.screenmanager import ScreenManager
 from protocol_factory import SetbackClientFactory
 from twisted.internet import reactor
-from homepage import HomePage
-from select_team import SelectTeam
 from state_manager import StateManager
-from table import Table
-from user_label import UserLabel
-from score_board import ScoreBoard
+
+# Even though some of these are not used they must be 
+# imported so that the builder can recognize the class
+from views.user_label import UserLabel
+from views.score_board import ScoreBoard
+from ui.views.select_team import SelectTeam
+from views.table import Table
+from views.homepage import HomePage
+from views.select_team import SelectTeam
+
+
+
 
 class SetbackApp(App):
     connection = None
