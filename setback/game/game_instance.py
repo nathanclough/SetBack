@@ -31,7 +31,7 @@ class Game:
         for player in self.team_two:
             if(player.id == player_id):
                 self.team_two.remove(player)
-    
+
     def has_players(self):
         return len(self.team_two) > 0 or len(self.team_one) > 0
     

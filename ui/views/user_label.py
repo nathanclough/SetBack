@@ -16,3 +16,6 @@ class UserLabel(BoxLayout):
         self.name = player.name
         self.team = player.team
         self.id = player.id
+
+    def bid_update(self,current_bidder_id):
+        self.active_turn = True if current_bidder_id == self.id else False

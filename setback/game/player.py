@@ -6,6 +6,7 @@ class Player():
         self.name = name
         self.team = team
         self.cards = []
+        self.current_bid = -1
         self.position = 0
         if(id == None):
             self.id = str(uuid.uuid4())

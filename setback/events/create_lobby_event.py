@@ -5,6 +5,3 @@ class CreateLobbyEvent(EventBase):
         super().__init__("create_lobby_event")
         self.name = name
         self.id = id
-    @classmethod
-    def from_json(cls, data):
-        return cls(**data)

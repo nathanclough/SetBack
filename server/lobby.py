@@ -1,8 +1,12 @@
+from setback.events.place_bid_event import PlaceBidEvent
+from setback.events.bid_update_event import BidUpdateEvent
+from setback.game.bid_manager import BidManager
 from setback import Game, Player, GameStartedEvent, GameUpdateEvent, Game
 
 class Lobby():
     def __init__(self,name) -> None:
         self.game = Game(name=name)
+        self.bid_manager = None
         self.clients = []
 
     def is_full(self):
@@ -32,7 +36,9 @@ class Lobby():
 
         if(self.game.is_full()):
             self.game.started = True
+            self.bid_manager = BidManager(self.game)
             event = GameStartedEvent()
+            event.current_bidder = self.bid_manager.get_current_bidder()
             self.update(event)
             return "success"
         else:
@@ -51,6 +57,17 @@ class Lobby():
         client.lobby = None
         update_game_event = GameUpdateEvent(self.game)
         self.update(update_game_event)
+    
+    def send_bid_update(self):
+        event = BidUpdateEvent()
+        event.current_bidder_id = self.bid_manager.get_current_bidder()
+        event.bids = self.bid_manager.get_bids()
+        self.update(event)
+
+    def place_bid(self,client,args):
+        event = PlaceBidEvent.from_json(args)
+        self.bid_manager.place_bid(event.id,event.bid)
+        self.send_bid_update()
 
     def update(self,event):
         for client in self.clients:

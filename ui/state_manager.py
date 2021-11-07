@@ -1,3 +1,5 @@
+from setback.events.bid_update_event import BidUpdateEvent
+from setback.events.game_started_event import GameStartedEvent
 from setback.events.update_joinable_lobbies import UpdateJoinableLobbiesEvent
 from setback.events.game_update_event import GameUpdateEvent
 from kivy.uix.screenmanager import ScreenManager
@@ -12,6 +14,7 @@ class StateManager(ScreenManager):
     team_one = ListProperty()
     team_two = ListProperty()
     player = ObjectProperty(Player("",1))
+    current_bidder_id = ""
     connection = None
     
     def __init__(self, **kwargs):
@@ -19,6 +22,7 @@ class StateManager(ScreenManager):
         self.register_event("game_update_event",self.handle_game_update_event)
         self.register_event("game_started_event",self.handle_game_started_event)
         self.register_event("update_joinable_lobbies_event",self.handle_update_joinable_lobbies_event)
+        self.register_event("bid_update_event",self.handle_bid_update_event)
         super().__init__(**kwargs)
     
     # key is event name and handler is list of subscribers
@@ -61,7 +65,13 @@ class StateManager(ScreenManager):
 
     def handle_game_started_event(self, event):
         self.current = "table"
+        self.current_bidder_id = GameStartedEvent.from_json(event).current_bidder
         self.dispatch('on_game_started_event')
+        self.dispatch('on_bid_update_event')
+
+    def handle_bid_update_event(self,event):
+        event = BidUpdateEvent.from_json(event)
+        self.dispatch('on_bid_update_event')
 
     def get_lobbies(self,*args):
         request = {
@@ -78,4 +88,7 @@ class StateManager(ScreenManager):
         pass
 
     def on_game_update_event(self):
+        pass
+
+    def on_bid_update_event(self):
         pass
