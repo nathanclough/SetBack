@@ -45,4 +45,7 @@ class Table(Screen):
 
         if not self.manager.game is None:
             self.on_game_update_event()
+
+        bid_pop = BidPopup(self.manager.connection.write)
+        bid_pop.open()
         return super().on_enter(*args)
